@@ -12,7 +12,6 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
     try {
       const lineItems = await Promise.all(
         products.map(async (product) => {
-          debugger;
           const item = await strapi
             .service("api::product.product")
             .findOne(product.id);
@@ -25,7 +24,7 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
               },
               unit_amount: Math.round(item.price * 100),
             },
-            quantity: product.quantity || 2,
+            quantity: product.attributes.quantity,
           };
         })
       );
@@ -34,7 +33,7 @@ module.exports = createCoreController("api::order.order", ({ strapi }) => ({
         shipping_address_collection: { allowed_countries: ["IN"] },
         payment_method_types: ["card"],
         mode: "payment",
-        success_url: process.env.CLIENT_URL + "?success=true",
+        success_url: process.env.CLIENT_URL + "/success",
         cancel_url: process.env.CLIENT_URL + "?success=false",
         line_items: lineItems,
       });
